@@ -1,3 +1,5 @@
+package PLC_Test2;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,6 +20,11 @@ public class Lexical {
 	static final int NUM = 1;
 	static final int FL_NUM = 2;
 	static final int STR = 3;
+	static final int EQ_S = 30;
+	static final int OPERATOR_S = 31;
+	static final int RPAREN = 32;
+	static final int LPAREN = 33;
+	static final int DOT_S = 34;
 	
 	//End states
 	static final int END_N = 4;
@@ -25,27 +32,35 @@ public class Lexical {
 	static final int END_S = 6;
 	static final int END_I = 7;
 	static final int END_E = 8;
+	static final int END_EQ = 35;
+	static final int END_RP = 36;
+	static final int END_LP = 37;
+	static final int END_OP = 38;
+	
 
 	//Char Types
-	static final int LETTER = 0;
-	static final int DIGIT = 1;
+	static final int LETTER = 9;
+	static final int DIGIT = 10;
+	static final int EQUALITY = 11;
+	static final int ADD_OP = 12;
+	static final int MULT_OP = 13;
 	static final int UNKNOWN = 99;
 	static final int EOF = -1;
 
 	//char values
-	static final int STR_LIT = 10;
-	static final int IDENT = 11;
-	static final int INT_LIT = 12;
-	static final int dot = 13;
-	static final int FLO_LIT = 14;
-  	static final int QUOTES = 15;
-    	static final int ADD = 16;
-	static final int SUB = 17;
-	static final int MULT = 18;
-	static final int DIV = 19;
-	static final int LEFT_PAREN = 20;
-	static final int RIGHT_PAREN = 21;
-	static final int EQU = 22;
+	static final int STR_LIT = 12;
+	static final int IDENT = 13;
+	static final int INT_LIT = 14;
+	static final int dot = 15;
+	static final int FLO_LIT = 16;
+  	static final int QUOTES = 17;
+    static final int ADD = 18;
+	static final int SUB = 19;
+	static final int MULT = 20;
+	static final int DIV = 21;
+	static final int LEFT_PAREN = 22;
+	static final int RIGHT_PAREN = 23;
+	static final int EQU = 24;
 	
 	
     //special characters
@@ -77,7 +92,7 @@ public class Lexical {
 			addChar();
 			nextTok = QUOTES;
 			break;
-		case '('
+		case '(':
 			addChar();
 			nextTok = LEFT_PAREN;
 			break;
@@ -144,12 +159,40 @@ public class Lexical {
 				}
 				charClass = LETTER;
 				states = STR;
-			}
-			else if (Character.isDigit(nextChar)) {
+			} else if (Character.isDigit(nextChar)) {
 				charClass = DIGIT;
 				states = NUM;
-			}
-			else {
+			} else if(nextChar == '(') {
+				charClass = LEFT_PAREN;
+				states = LPAREN;
+			} else if(nextChar == ')') {
+				charClass = RIGHT_PAREN;
+				states = RPAREN;
+			} else if(nextChar == '*') {
+				charClass = MULT;
+				states = OPERATOR_S;
+			} else if(nextChar == '/') {
+				charClass = DIV;
+				states = OPERATOR_S;
+			} else if(nextChar == '+') {
+				charClass = ADD;
+				states = OPERATOR_S;
+			} else if(nextChar == '-') {
+				charClass = SUB;
+				states = OPERATOR_S;
+			} else if(nextChar == '.') {
+				charClass = dot;
+				states = DOT_S;
+			} else if(nextChar == '<') {
+				charClass = EQU;	
+				states = EQ_S;
+			} else if(nextChar == '>') {
+				charClass = EQU;
+				states = EQ_S;
+			} else if(nextChar == '=') {
+				charClass = EQU;
+				states = EQ_S;
+			} else {
 				charClass = UNKNOWN;
 			}
 		} else {
@@ -208,6 +251,16 @@ public class Lexical {
 			nextTok = INT_LIT;
 			states = END_N;
 			break;
+		/* equality operator */
+		case EQUALITY:
+			addChar();
+			getChar(br);
+			while(charClass == EQUALITY) {
+				addChar();
+				getChar(br);
+			}
+			nextTok = EQU;
+			states = END_EQ;
 		/*quotes for Strings*/
 		case UNKNOWN:
 			lookup(nextChar);
