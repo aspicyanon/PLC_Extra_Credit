@@ -5,7 +5,7 @@
  * <rel>    -> <rel> < <add> | <rel> <= <add> | <rel> > <add> | <rel> >= <add> | <add>
  * <add>    -> <add> + <mult> | <add> - <mult> | <mult>
  * <mult>   -> <mult> * <term> | <mult> / <term> | <mult> % <term> | <term>
- * <term>   -> (<add>) | int_lit | id
+ * <term>   -> (<assign>) | int_lit | id
  */
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,6 +59,10 @@ public class SimpleCode {
 
 	static int lookup(char ch){
 		switch (ch) {
+		case '=':
+			addChar();
+			nextTok = EQ;
+			break;
 		case '.':
 			addChar();
 			nextTok = dot;
@@ -209,8 +213,18 @@ public class SimpleCode {
 				}
 				nextTok = FLO_LIT;
 			}
+			if(nextTok == EQ) {
+				getChar(br);
+				while(charClass == DIGIT || charClass == LETTER) {
+					addChar();
+					getChar(br);
+				}
+				nextTok = IDENT;
+			} else {
+				getChar(br);
+			}
 			break;
-			/* EOF */
+	    /* EOF */
 		case EOF:
 			nextTok = 0;
 			lexeme[0] = 0;
@@ -226,58 +240,72 @@ public class SimpleCode {
 	}
 
 	public static void assign(BufferedReader br) throws IOException {
+		//System.out.println("Enter <assign>\n");
 		logic(br);
 		while (nextTok == EQ) {
 			lex(br);
 			logic(br);
 		}
+		//System.out.println("Exit <assign>\n");
 	}
 
 	public static void logic(BufferedReader br) throws IOException {
+		//for debugging purposes
+		//System.out.println("Enter <logic>\n");
 		equal(br);
 		while (nextTok == AND_OP || nextTok == OR_OP) {
 			lex(br);
 			equal(br);
 		}
+		//System.out.println("Enter <logic>\n");
 	}
 	public static void equal(BufferedReader br) throws IOException {
+		//System.out.println("Enter <equal>\n");
 		rel(br);
 		while (nextTok == DUB_EQ || nextTok == NOT_EQ) {
 			lex(br);
 			rel(br);
 		}
+		//System.out.println("Enter <equal>\n");
 	}
 
 	public static void rel(BufferedReader br) throws IOException {
+		//System.out.println("Enter <rel>\n");
 		add(br);
 		while (nextTok == LE || nextTok == LE_EQ || nextTok == GR || nextTok == GR_EQ) {
 			lex(br);
 			add(br);
 		}
+		//System.out.println("Enter <rel>\n");
 	}
 
 	public static void add(BufferedReader br) throws IOException {
+		//System.out.println("Enter <add>\n");
 		mult(br);
 		while (nextTok == ADD_OP || nextTok == SUB_OP) {
 			lex(br);
 			mult(br);
 		}
+		//System.out.println("Enter <add>\n");
 	}
 	public static void mult(BufferedReader br) throws IOException {
+		//System.out.println("Enter <mult>\n");
 		term(br);
 		while (nextTok == MULT_OP || nextTok == DIV_OP || nextTok == MOD_OP) {
 			lex(br);
 			term(br);
 		}
+		//System.out.println("Enter <mult>\n");
 	}
 
 	public static void term(BufferedReader br) throws IOException {
+		//System.out.println("Enter <term>\n");
 		if (nextTok == IDENT || nextTok == INT_LIT) {
 			lex(br);
 		} else {
 			if (nextTok == L_PARE) {
 				lex(br);
-				add(br);
+				assign(br);
 				if (nextTok == R_PARE) {
 					lex(br);
 				}
@@ -287,7 +315,9 @@ public class SimpleCode {
 			} else
 				error();
 		}
+		//System.out.println("Exit <term>\n");
 	}
+	
 	static void error() {
 		System.out.println("Error = Symbol not found");
 	}
