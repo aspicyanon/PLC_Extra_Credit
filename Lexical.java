@@ -1,11 +1,10 @@
-package PLC_Test2;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-public class Lexical {
-	//variables
+//lexical Analyzer portion
+public class SimpleCode {        
+        //variables
 	static int charClass;
 	static char[] lexeme = new char[100];
 	static char nextChar;
@@ -15,75 +14,47 @@ public class Lexical {
 	static File in_fp;
 	static int states = 0;
 
-	//States
-	static final int START = 0;
-	static final int NUM = 1;
-	static final int FL_NUM = 2;
-	static final int STR = 3;
-	static final int EQ_S = 30;
-	static final int OPERATOR_S = 31;
-	static final int RPAREN = 32;
-	static final int LPAREN = 33;
-	static final int DOT_S = 34;
-	
-	//End states
-	static final int END_N = 4;
-	static final int END_F = 5;
-	static final int END_S = 6;
-	static final int END_I = 7;
-	static final int END_E = 8;
-	static final int END_EQ = 35;
-	static final int END_RP = 36;
-	static final int END_LP = 37;
-	static final int END_OP = 38;
-	
-
 	//Char Types
-	static final int LETTER = 9;
-	static final int DIGIT = 10;
-	static final int EQUALITY = 11;
-	static final int ADD_OP = 12;
-	static final int MULT_OP = 13;
+	static final int LETTER = 0;
+	static final int DIGIT = 1;
 	static final int UNKNOWN = 99;
 	static final int EOF = -1;
 
 	//char values
-	static final int STR_LIT = 12;
-	static final int IDENT = 13;
-	static final int INT_LIT = 14;
-	static final int dot = 15;
-	static final int FLO_LIT = 16;
-  	static final int QUOTES = 17;
-    static final int ADD = 18;
-	static final int SUB = 19;
-	static final int MULT = 20;
-	static final int DIV = 21;
-	static final int LEFT_PAREN = 22;
-	static final int RIGHT_PAREN = 23;
-	static final int EQU = 24;
-	
-	
-    //special characters
-    static int Flag = 0;
-    
-	static public void state(int states) {
-		switch(states) {
-		case END_S:
-			System.out.println("End state is: " + states + ", a String Literal.");
-			break;
-		case END_I:
-			System.out.println("End state is: " + states + ", a Variable Name");
-			break;
-		case END_N:
-			System.out.println("End state is: " + states + ", an Integer Literal.");
-			break;
-		case END_F:
-			System.out.println("End state is: " + states + ", a Floating Point Literal.");
-			break;
-		}
-	}
-    static int lookup(char ch){
+	static final int STR_LIT = 1;
+	static final int IDENT = 2;
+	static final int INT_LIT = 3;
+	static final int FLO_LIT = 4;
+	static final int dot = 5;
+
+	static final int QUOTES = 6;
+	static final int DUB_EQ = 10;
+	static final int NOT_EQ = 11;
+	static final int EQ = 12;
+	static final int LE = 13;
+	static final int GR = 15;
+	static final int LE_EQ = 16;
+	static final int GR_EQ = 17;
+	static final int ADD_OP = 18;
+	static final int SUB_OP = 19;
+	static final int MULT_OP = 20;
+	static final int DIV_OP = 21;
+	static final int MOD_OP = 22;
+	static final int L_PARE = 25;
+	static final int R_PARE = 26;
+	static final int AND_OP =27;
+	static final int OR_OP = 28;
+
+	//special characters
+	static int Flag = 0;
+
+
+	static int lookup(char ch){
 		switch (ch) {
+		case '=':
+			addChar();
+			nextTok = EQ;
+			break;
 		case '.':
 			addChar();
 			nextTok = dot;
@@ -94,40 +65,32 @@ public class Lexical {
 			break;
 		case '(':
 			addChar();
-			nextTok = LEFT_PAREN;
+			nextTok = L_PARE;
 			break;
 		case ')':
 			addChar();
-			nextTok = RIGHT_PAREN;
+			nextTok = R_PARE;
 			break;
 		case '+':
 			addChar();
-			nextTok = ADD;
+			nextTok = ADD_OP;
 			break;
 		case '-':
 			addChar();
-			nextTok = SUB;
+			nextTok = SUB_OP;
 			break;
 		case '*':
 			addChar();
-			nextTok = MULT;
+			nextTok = MULT_OP;
 			break;
 		case '/':
 			addChar();
-			nextTok = DIV;
+			nextTok = DIV_OP;
 			break;
-		case '=':
+		case '%':
 			addChar();
-			nextTok = EQU;
+			nextTok = MOD_OP;
 			break;
-		case '>':
-			addChar();
-			nextTok = EQU;
-			break;
-		case '<':
-			addChar();
-			nextTok = EQU;
-			break;			
 		default:
 			addChar();
 			nextTok = 0;
@@ -158,55 +121,24 @@ public class Lexical {
 					Flag = 2;
 				}
 				charClass = LETTER;
-				states = STR;
-			} else if (Character.isDigit(nextChar)) {
+			}
+			else if (Character.isDigit(nextChar)) {
 				charClass = DIGIT;
-				states = NUM;
-			} else if(nextChar == '(') {
-				charClass = LEFT_PAREN;
-				states = LPAREN;
-			} else if(nextChar == ')') {
-				charClass = RIGHT_PAREN;
-				states = RPAREN;
-			} else if(nextChar == '*') {
-				charClass = MULT;
-				states = OPERATOR_S;
-			} else if(nextChar == '/') {
-				charClass = DIV;
-				states = OPERATOR_S;
-			} else if(nextChar == '+') {
-				charClass = ADD;
-				states = OPERATOR_S;
-			} else if(nextChar == '-') {
-				charClass = SUB;
-				states = OPERATOR_S;
-			} else if(nextChar == '.') {
-				charClass = dot;
-				states = DOT_S;
-			} else if(nextChar == '<') {
-				charClass = EQU;	
-				states = EQ_S;
-			} else if(nextChar == '>') {
-				charClass = EQU;
-				states = EQ_S;
-			} else if(nextChar == '=') {
-				charClass = EQU;
-				states = EQ_S;
-			} else {
+			}
+			else {
 				charClass = UNKNOWN;
 			}
 		} else {
 			charClass = EOF;
-			states = END_E;
 		}
 	}
+
 	static void getNonBlank(BufferedReader br) throws IOException {
 		while (Character.isWhitespace(nextChar)) {
 			getChar(br);
-			}
-		states = START;
-		
+		}
 	}
+
 	static int lex(BufferedReader br) throws IOException {
 		lexeme = new char[lexeme.length];
 		lexLen = 0;
@@ -221,9 +153,8 @@ public class Lexical {
 				getChar(br);
 			}
 			nextTok = IDENT;
-			states = END_I;
 			break;
-		/* Integer literals and Float Literals*/
+			/* Integer literals and Float Literals*/
 		case DIGIT:
 			addChar();
 			getChar(br);
@@ -244,24 +175,12 @@ public class Lexical {
 						getChar(br);
 					}
 					nextTok = FLO_LIT;
-					states = END_F;
 					break;
 				}		
 			}
 			nextTok = INT_LIT;
-			states = END_N;
 			break;
-		/* equality operator */
-		case EQUALITY:
-			addChar();
-			getChar(br);
-			while(charClass == EQUALITY) {
-				addChar();
-				getChar(br);
-			}
-			nextTok = EQU;
-			states = END_EQ;
-		/*quotes for Strings*/
+			/*quotes for Strings*/
 		case UNKNOWN:
 			lookup(nextChar);
 			if(nextTok == QUOTES) {
@@ -273,7 +192,6 @@ public class Lexical {
 				addChar();
 				getChar(br);
 				nextTok = STR_LIT;	
-				states = END_S;
 			}
 			if(nextTok == dot) {
 				getChar(br);
@@ -286,13 +204,21 @@ public class Lexical {
 					getChar(br);
 				}
 				nextTok = FLO_LIT;
-				states = END_F;
+			}
+			if(nextTok == EQ) {
+				getChar(br);
+				while(charClass == DIGIT || charClass == LETTER) {
+					addChar();
+					getChar(br);
+				}
+				nextTok = IDENT;
+			} else {
+				getChar(br);
 			}
 			break;
-			/* EOF */
+	    /* EOF */
 		case EOF:
 			nextTok = 0;
-			states = END_E;
 			lexeme[0] = 0;
 			break;
 		} /* End of switch */
@@ -301,23 +227,6 @@ public class Lexical {
 			System.out.print(lexeme[i]);
 		}
 		System.out.print("\n");
-		state(states);
 		System.out.print("\n");
 		return nextTok;
-	}	
-	public static void main(String[]args) throws IOException{
-		System.out.println("State Diagram Recognition");
-		if ((in_fp = new File("C:\\Users\\kuwan_000\\Documents"
-		          + "\\Georgia State\\GA State Spring 2020\\Programming Language Concepts\\final_1test.txt")) == null) {
-			System.out.println("ERROR - cannot open file \n");
-		}
-		 else {
-			BufferedReader br = new BufferedReader(new FileReader(in_fp));
-		 	getChar(br);
-		 do {
-		 	lex(br);
-		 } while (nextTok != 0);
-		 br.close();
-		 }
-	}	
-}
+	}
