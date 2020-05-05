@@ -1,5 +1,9 @@
 Language name: SimpleCode
 
+Develepors:
+Josh Ritz
+Matt Wang
+
 Intro to language:
 
 This language is statically typed. No casting is allowed. This means, programmers must code for the exact situations and functions they need. While this can make coding difficult, because for more complex programs you have potential for more type errors, it will also make learning the language very easy. SimpleCode can handle basic mathematical operations, logical statements, and displaying of simple outputs to the user. Keywords in this language are not case specific, and while this limits the number of keywords our language can have, the requirements of our language are such that a few keywords will be suffice. Variable names in this language are also not case sensitive. This makes checking for case unnecessary which is nice for the programmer. Variable names can be anything regardless of data type.
